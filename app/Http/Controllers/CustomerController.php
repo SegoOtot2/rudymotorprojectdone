@@ -26,11 +26,6 @@ class CustomerController extends Controller
         return datatables()
             ->of($customer)
             ->addIndexColumn()
-            ->addColumn('select_all', function($produk) {
-                return '
-                    <input type="checkbox" name="id_customer[]" value="'. $produk->id_customer .'">
-                ';
-            })
             ->addColumn('kode_customer', function($customer) {
                 return '<span class="label label-success">'. $customer->kode_customer .'<span>';
             })
@@ -40,7 +35,7 @@ class CustomerController extends Controller
                     <button type="button" onclick="deleteData(`'. route('customer.destroy', $customer->id_customer) .'`)" class="btn btn-xs btn-danger btn-flat"><i class="fa fa-trash"></i></button>
                 ';
             })
-            ->rawColumns(['aksi', 'select_all', 'kode_customer'])
+            ->rawColumns(['aksi', 'kode_customer'])
             ->make(true);
     }
 
@@ -125,21 +120,4 @@ class CustomerController extends Controller
         return response(null, 204);
     }
 
-    public function cetakCustomer(Request $request)
-    {
-        $datacustomer = collect(array());
-        foreach ($request->id_customer as $id) {
-            $customer = Customer::find($id);
-            $datacustomer[] = $customer;
-        }
-
-        $datacustomer = $datacustomer->chunk(2);
-        $setting = Setting::first();
-
-        $no  = 1;
-        $pdf = PDF::loadView('customer.cetak', compact('datacustomer', 'no', 'setting'));
-        $pdf->setPaper(array(0, 0, 566.93, 850.39), 'potrait');
-        return $pdf->stream('customer.pdf');
-        
-    }
 }

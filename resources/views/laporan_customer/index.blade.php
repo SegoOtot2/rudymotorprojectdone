@@ -59,7 +59,6 @@
              bPaginate: false,
         });
 
-        // Kembalikan ke datepicker harian
         $('.datepicker').datepicker({
             format: 'yyyy-mm-dd',
             autoclose: true

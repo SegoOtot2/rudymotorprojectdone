@@ -29,16 +29,7 @@ class SettingController extends Controller
             $file = $request->file('path_logo');
             $nama = 'logo-'. date('YmdHis'). '.' . $file->getClientOriginalExtension();
             $file->move(public_path('/img'), $nama);
-
             $setting->path_logo = "/img/$nama";
-        }
-
-         if ($request->hasFile('path_kartu_customer')) {
-            $file = $request->file('path_kartu_customer');
-            $nama = 'kartu-'. date('YmdHis'). '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('/img'), $nama);
-
-            $setting->path_kartu_customer = "/img/$nama";
         }
 
         $setting->update();

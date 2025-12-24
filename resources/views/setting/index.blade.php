@@ -51,26 +51,15 @@
                             <div class="tampil-logo"></div>
                         </div>
                     </div>
-                     <div class="form-group row">
-                        <label for="path_kartu_customer" class="col-lg-2 col-lg-offset-1 control-label">Desain Kartu Customer</label>
-                        <div class="col-lg-4">
-                            <input type="file" name="path_kartu_customer" class="form-control" id="path_kartu_customer"
-                                onchange="preview('.tampil-kartu-customer', this.files[0], 300)">
-                            <span class="help-block with-errors"></span>
-                            <br>
-                            <div class="tampil-kartu-customer"></div>
-                        </div>
-                    </div>
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
                         <label for="tipe_nota" class="col-lg-2 col-lg-offset-1 control-label">Tipe Nota</label>
                         <div class="col-lg-2">
                             <select name="tipe_nota" class="form-control" id="tipe_nota" required>
-                                <option value="1">Nota Kecil</option>
                                 <option value="2">Nota Besar</option>
                             </select>
                             <span class="help-block with-errors"></span>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="box-footer text-right">
                     <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"> Simpan Pengaturan</i></button>
@@ -123,7 +112,6 @@
                 $('.logo-lg').text(response.nama_perusahaan);
 
                 $('.tampil-logo').html(`<img src="{{ url('/') }}/${response.path_logo}" width="200">`);
-                $('.tampil-kartu-customer').html(`<img src="{{ url('/') }}/${response.path_kartu_customer}" width="300">`);
                 $('[rel=icon]').attr('href', `{{ url('/') }}/${response.path_logo}`);
             })
             .fail(errors => {

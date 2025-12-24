@@ -28,6 +28,13 @@
                 <span class="help-block with-errors"></span>
             </div>
         </div>
+         <div class="form-group row">
+            <label for="keterangan" class="col-md-2 col-md-offset-1 control-label">Keterangan</label>
+            <div class="col-md-9">
+                <input type="text" name="keterangan" id="keterangan" class="form-control">
+                <span class="help-block with-errors"></span>
+            </div>
+        </div>
         <div class="form-group row">
             <label for="id_kategori" class="col-md-2 col-md-offset-1 control-label">Nama Kategori</label>
             <div class="col-md-9">

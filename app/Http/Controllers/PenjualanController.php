@@ -19,7 +19,9 @@ class PenjualanController extends Controller
 
     public function data()
     {
-         $penjualan = Penjualan::orderBy('id_penjualan', 'desc')->get();
+         $penjualan = Penjualan::where('total_item', '>', 0)
+                ->orderBy('id_penjualan', 'desc')
+                        ->get();
 
         return datatables()
             ->of($penjualan)
@@ -72,7 +74,6 @@ class PenjualanController extends Controller
         $penjualan->diskon = 0;
         $penjualan->bayar = 0;
         $penjualan->diterima = 0;
-        $penjualan->nama_toko = '';
         $penjualan->id_user = auth()->id();
         $penjualan->save();
 
@@ -89,7 +90,6 @@ class PenjualanController extends Controller
         $penjualan->diskon = $request->diskon;
         $penjualan->bayar = $request->bayar;
         $penjualan->diterima = $request->diterima;
-        $penjualan->nama_toko = $request->nama_toko;
         $penjualan->update();
 
         $detail = PenjualanDetail::where('id_penjualan', $penjualan->id_penjualan)->get();
@@ -150,19 +150,6 @@ class PenjualanController extends Controller
     public function selesai() {
         $setting = Setting::first();
         return view('penjualan.selesai', compact('setting'));
-    }
-
-    public function notaKecil() {
-        $setting = Setting::first();
-        $penjualan = penjualan::find(session('id_penjualan'));
-        if (! $penjualan) {
-            abort(404);
-        }
-        $detail = PenjualanDetail::with('produk')
-            ->where('id_penjualan', session('id_penjualan'))
-            ->get();
-
-        return view('penjualan.nota_kecil', compact('setting', 'penjualan', 'detail'));
     }
 
     public function notaBesar() {

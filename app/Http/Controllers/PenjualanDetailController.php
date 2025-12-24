@@ -13,15 +13,59 @@ class PenjualanDetailController extends Controller
 {
     public function index()
     {
-        $produk = Produk::orderBy('nama_produk')->get();
+       $produk = Produk::with('kategori')->orderBy('nama_produk')->get();
         $customer = Customer::orderBy('nama')->get();
         $setting = Setting::first();
 
-        // Cek transaksi berjalan 
+        // Cek apakah ada ID transaksi di session
         if ($id_penjualan = session('id_penjualan')) {
             $penjualan = Penjualan::find($id_penjualan);
-           $customerSelected = $penjualan->customer ?? new Customer();
-           $diskonGlobal = $penjualan->diskon ?? 0;
+
+           
+            if ($penjualan && $penjualan->bayar > 0) {
+                
+                // 1. Buat Penjualan Baru (Draft)
+                $penjualanBaru = new Penjualan();
+                $penjualanBaru->id_customer = $penjualan->id_customer; // Copy customer lama
+                $penjualanBaru->total_item = 0; // Akan dihitung ulang nanti
+                $penjualanBaru->total_harga = 0;
+                $penjualanBaru->diskon = 0;
+                $penjualanBaru->bayar = 0;
+                $penjualanBaru->diterima = 0;
+                $penjualanBaru->id_user = auth()->id();
+                $penjualanBaru->save();
+
+                // 2. Salin Detail Item dari Transaksi Lama ke Transaksi Baru
+                $detailLama = PenjualanDetail::where('id_penjualan', $id_penjualan)->get();
+                
+                foreach ($detailLama as $item) {
+                    $detailBaru = new PenjualanDetail();
+                    $detailBaru->id_penjualan = $penjualanBaru->id_penjualan;
+                    $detailBaru->id_produk = $item->id_produk;
+                    $detailBaru->harga_jual = $item->harga_jual;
+                    $detailBaru->jumlah = $item->jumlah;
+                    $detailBaru->diskon = $item->diskon;
+                    $detailBaru->subtotal = $item->subtotal;
+                    $detailBaru->save();
+                    
+                    // Update total item & harga di parent penjualan baru
+                    $penjualanBaru->total_item += $item->jumlah;
+                    $penjualanBaru->total_harga += $item->subtotal;
+                }
+                
+                $penjualanBaru->update(); // Simpan total yang sudah dihitung
+
+                // 3. Ganti Session ke ID Baru
+                session(['id_penjualan' => $penjualanBaru->id_penjualan]);
+                
+                // 4. Arahkan variabel $penjualan ke yang baru untuk view
+                $penjualan = $penjualanBaru;
+                $id_penjualan = $penjualanBaru->id_penjualan;
+            }
+            
+            // Lanjut ke logika view standar...
+            $customerSelected = $penjualan->customer ?? new Customer();
+            $diskonGlobal = $penjualan->diskon ?? 0;
 
             return view('penjualan_detail.index', compact('produk', 'customer', 'setting', 'id_penjualan', 'penjualan', 'customerSelected', 'diskonGlobal'));
         } else {
@@ -43,6 +87,7 @@ class PenjualanDetailController extends Controller
         $total = 0;
         $total_item = 0;
 
+        /** @var \App\Models\PenjualanDetail $item */
         foreach ($detail as $item) {
             $row = array();
             $row['kode_produk'] = '<span class="label label-success">'. $item->produk['kode_produk'] .'<span>';
@@ -144,21 +189,66 @@ class PenjualanDetailController extends Controller
 
     public function loadForm($diskon = 0, $total = 0, $diterima = 0)
     {
+        $total = (float) $total;
+        $diskon = (float) $diskon;
+        $diterima = (float) $diterima; // Uang diterima tidak perlu di-round() disini
+
+        // Hitung total bayar setelah diskon
         $bayar = $total - ($diskon / 100 * $total);
-        $bayar = round($bayar);
+        // Penting: Rounding bayar dilakukan disini agar total bayar bersih terdefinisi
+        $bayar_bersih = round($bayar); 
 
-        $diterima_bulat = round($diterima);
+        // Hitung kembalian
+        // Gunakan $bayar_bersih untuk perhitungan kembalian
+        $kembali = ($diterima > 0) ? $diterima - $bayar_bersih : 0;
+        
+        // Jika kembali minus (uang diterima kurang), tetap tampilkan 0 atau nilai kembalian minus
+        if ($kembali < 0) {
+            // Biarkan minus, atau set ke 0 jika ingin display kembali minimal 0
+            // Namun, untuk akurasi perhitungan, biarkan minus.
+        }
 
-        $kembali = ($diterima_bulat != 0) ? $diterima_bulat - $bayar : 0;
         $data = [
             'totalrp' => format_uang($total),
-            'bayar' => $bayar,
-            'bayarrp' => format_uang($bayar),
-            'terbilang' => ucwords(terbilang($bayar). ' Rupiah'),
+            'bayar' => $bayar_bersih, // Kirim nilai bayar bersih
+            'bayarrp' => format_uang($bayar_bersih),
+            'terbilang' => ucwords(terbilang($bayar_bersih). ' Rupiah'),
             'kembalirp' => format_uang($kembali),
             'kembali_terbilang' => ucwords(terbilang($kembali). ' Rupiah')
         ];
 
         return response()->json($data);
+    }
+
+    public function updateHarga(Request $request)
+    {
+        $id_penjualan = $request->id_penjualan;
+        $harga_type = $request->harga_type;
+
+        // Ambil semua detail barang yang sedang ditransaksikan
+        $details = PenjualanDetail::where('id_penjualan', $id_penjualan)->get();
+
+        foreach ($details as $item) {
+            $produk = Produk::find($item->id_produk);
+            
+            if ($produk) {
+                // Tentukan harga baru berdasarkan tipe yang dipilih
+                if ($harga_type == 'harga_jual_toko') {
+                    $harga_baru = $produk->harga_jual_toko;
+                } else {
+                    $harga_baru = $produk->harga_jual;
+                }
+
+                // Update harga jual di detail
+                $item->harga_jual = $harga_baru;
+                
+                // Hitung ulang subtotal (tetap perhitungkan diskon per item jika ada)
+                $item->subtotal = ($harga_baru * $item->jumlah) - ($item->diskon / 100 * $harga_baru * $item->jumlah);
+                
+                $item->update();
+            }
+        }
+
+        return response()->json('Data berhasil diupdate', 200);
     }
 }

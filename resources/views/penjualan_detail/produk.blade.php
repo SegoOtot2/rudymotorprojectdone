@@ -12,7 +12,11 @@
             <th width="5%">No</th>
             <th>Kode</th>
             <th>Nama</th>
+            <th>Keterangan</th>
+            <th>Kategori</th>
+            <th>Merk</th>
             <th>Harga</th>
+            <th>Stok</th>
             <th><i class="fa fa-cog"></i></th>
           </thead>
           <tbody>
@@ -21,8 +25,11 @@
                   <td width="5%">{{ $key + 1 }}</td>
                   <td><span class="label label-success">{{ $item->kode_produk }}</span></td>
                   <td>{{ $item->nama_produk }}</td>
-                                {{-- Beri class 'harga-display' untuk kita update --}}
+                  <td>{{ $item->keterangan }}</td>
+                  <td>{{ $item->kategori->nama_kategori ?? '-'}}</td>
+                  <td>{{ $item->merk }}</td>
                   <td class="harga-display">{{ format_uang($item->harga_jual) }}</td>
+                  <td>{{ $item->stok }}</td>
                   <td width="15%">
                   <a href="#" class="btn btn-primary btn-xs btn-flat"
                   onclick="pilihProduk('{{ $item->id_produk }}', '{{ $item->kode_produk }}')">

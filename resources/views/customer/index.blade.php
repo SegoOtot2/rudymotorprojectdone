@@ -15,16 +15,12 @@
           <div class="box">
             <div class="box-header with-border">
               <button onclick="addForm('{{ route('customer.store') }}')" class="btn btn-success btn-xs btn-flat"><i class="fa fa-plus-circle"></i> Tambah</button>
-              <button onclick="cetakCustomer('{{ route('customer.cetak_customer') }}')" class="btn btn-info btn-xs btn-flat"><i class="fa fa-id-card"></i> Cetak Customer</button>
             </div>
             <div class="box-body table-responsive">
                 <form action="" method="post" class="form-customer">
                     @csrf
                 <table class="table table-stiped table-bordered">
                     <thead>
-                        <th width="3%">
-                            <input type="checkbox" name="select_all" id="select_all">
-                        </th>
                         <th width="5%">No</th>
                         <th>Kode Customer</th>
                         <th>Nama Customer</th>
@@ -54,7 +50,6 @@
                  url: '{{ route('customer.data') }}',
              },
              columns: [
-                {data: 'select_all', searchable: false, sortable: false},
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'kode_customer'},
                 {data: 'nama'},
@@ -76,9 +71,6 @@
                         return;
                     });
             }
-        });
-        $('[name=select_all]').on('click', function () {
-            $(':checkbox').prop('checked', this.checked);
         });
     });
         
@@ -127,18 +119,6 @@
                 return;
             })
            }
-        }
-
-        function cetakCustomer(url) {
-             if ($('input:checked').length < 1) {
-                alert('Pilih data yang akan dicetak')
-                return;
-            } else {
-                $('.form-customer')
-                .attr('target', '_blank')
-                .attr('action', url)
-                .submit();
-            }
         }
     </script>
 @endpush

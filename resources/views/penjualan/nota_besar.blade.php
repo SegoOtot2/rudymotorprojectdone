@@ -37,7 +37,6 @@
                 {{ $setting->alamat }}
                 <br>
                 <br>
-                {{ strtoupper($penjualan->nama_toko) }}
             </td>
             <td>Tanggal</td>
             <td>: {{ tanggal_indonesia($penjualan->created_at, false)}}</td>

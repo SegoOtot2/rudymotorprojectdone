@@ -23,7 +23,6 @@
                         <th>Total Harga</th>
                         <th>Diskon Nota</th>
                         <th>Total Bayar</th>
-                        <th>Toko</th>
                         <th>Kasir</th>
                         <th width="15%"><i class="fa fa-cog"></i></th>
                     </thead>
@@ -55,7 +54,6 @@
                 {data: 'total_harga'},
                 {data: 'diskon'},
                 {data: 'bayar'},
-                {data: 'nama_toko'},
                 {data: 'kasir'},
                 {data: 'aksi', searchable: false, sortable: false},
              ]

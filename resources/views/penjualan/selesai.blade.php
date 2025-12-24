@@ -20,11 +20,7 @@
                 </div>
             </div>
                 <div class="box-footer">
-                    @if ($setting->tipe_nota == 1)
-                    <button class="btn btn-warning" onclick="notaKecil('{{ route('transaksi.nota_kecil') }}', 'Nota kecil')">Cetak Nota</button>
-                    @else
                     <button class="btn btn-warning" onclick="notaBesar('{{ route('transaksi.nota_besar') }}', 'Nota besar')">Cetak Nota</button>
-                    @endif
                     <a href="{{ route('transaksi.baru') }}" class="btn btn-primary">Transaksi Baru</a>
                 </div>
             </div>
@@ -35,9 +31,6 @@
 
 @push('scripts')
     <script>
-        function notaKecil(url, title) {
-            popupCenter(url, title, 625, 500);
-        }
 
         function notaBesar(url, title) {
             popupCenter(url, title, 900, 675);

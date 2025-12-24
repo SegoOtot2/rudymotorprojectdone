@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('setting', function (Blueprint $table) {
-            $table->string('path_kartu_customer')
-            ->after('path_logo');
+        Schema::table('produk', function (Blueprint $table) {
+            $table->string('keterangan')
+            ->after('nama_produk');
         });
     }
 
@@ -22,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('setting', function (Blueprint $table) {
-            $table->dropColumn('path_kartu_customer');
+        Schema::table('produk', function (Blueprint $table) {
+             $table->dropColumn('keterangan');
         });
     }
 };

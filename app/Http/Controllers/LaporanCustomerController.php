@@ -29,9 +29,9 @@ class LaporanCustomerController extends Controller
         $data = array();
         $total_semua_omset = 0;
 
-        // Query diubah ke LEFT JOIN
+        
         $penjualan = Customer::leftJoin('penjualan', function($join) use ($awal, $akhir) {
-                // Tambahkan kondisi rentang tanggal di dalam join
+                
                 $join->on('customer.id_customer', '=', 'penjualan.id_customer')
                      ->whereBetween('penjualan.created_at', [$awal . ' 00:00:00', $akhir . ' 23:59:59']);
             })

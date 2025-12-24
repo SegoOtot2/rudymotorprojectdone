@@ -98,17 +98,11 @@
                                 <label for="kode_customer" class="col-lg-2 control-label">Customer</label>
                                 <div class="col-lg-8">
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="kode_customer" value="{{ $customerSelected->nama }}" >
+                                        <input type="text" class="form-control" id="kode_customer" value="{{ $customerSelected->nama }}" readonly>
                                         <span class="input-group-btn">
                                             <button onclick="tampilCustomer()" class="btn btn-info btn-flat" type="button"><i class="fa fa-arrow-right"></i></button>
                                         </span>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="form-group row">
-                                <label for="nama_toko" class="col-lg-2 control-label">Nama Toko</label>
-                                <div class="col-lg-8">
-                                    <input type="text" name="nama_toko" id="nama_toko" class="form-control" placeholder="Opsional">
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -117,7 +111,6 @@
                                     <input type="text" id="totalrp" class="form-control" readonly>
                                 </div>
                             </div>
-
                             
                             <div class="form-group row">
                                 <label for="diskon" class="col-lg-2 control-label">Diskon %</label>
@@ -202,6 +195,23 @@
 
         $('#harga_type').on('change', function () {
             updateHargaProduk();
+
+            let id_penjualan = $('#id_penjualan').val();
+            let harga_type = $(this).val();
+
+            $.post('{{ route('transaksi.update_harga') }}', {
+                '_token': $('[name=csrf-token]').attr('content'),
+                'id_penjualan': id_penjualan,
+                'harga_type': harga_type
+            })
+            .done(response => {
+                // Refresh tabel agar harga berubah
+                table.ajax.reload(() => loadForm($('#diskon').val()));
+            })
+            .fail(errors => {
+                alert('Tidak dapat mengupdate harga');
+                return;
+            });
         });
 
         $('#kode_produk').on('keypress', function(e) {
@@ -321,6 +331,7 @@
             hideCustomer();                
         });
 
+       
         $('#diterima').on('input', function () {
             if ($(this).val() == "") {
                 $(this).val(0).select();
@@ -329,7 +340,7 @@
             loadForm($('#diskon').val(), $(this).val());
         }).focus(function () {
             $(this).select();
-        })
+        });
 
         $('#btn-uang-pas').on('click', function () {
         let bayar = $('#bayar').val();  // ambil hidden input bayar
@@ -340,11 +351,20 @@
             e.preventDefault();
 
             let customer = $('#id_customer').val();
+            let bayar = parseFloat($('#bayar').val()); // Ambil nilai 'Bayar' yang sudah dihitung
+            let diterima = parseFloat($('#diterima').val().replace(/[^\d]/g, '')); // Ambil nilai 'Diterima'
 
             if (customer == "" || customer == null) {
                 alert('Tolong pilih customer');
                 return;
             }
+            
+            if (diterima < bayar) {
+                alert('Uang yang diterima kurang dari total yang harus dibayar!');
+                $('#diterima').focus().select();
+                return;
+            }
+
             $('.form-penjualan').submit();
         });
         
@@ -425,28 +445,28 @@
         }
 
         function loadForm(diskon = 0, diterima = 0) {
-            $('#total').val($('.total'). text());
-            $('#total_item').val($('.total_item'). text());
+        $('#total').val($('.total').text());
+        $('#total_item').val($('.total_item').text());
 
-            $.get(`{{ url('/transaksi/loadform') }}/${diskon}/${$('.total').text()}/${diterima}`)
-                .done(response => {
-                    $('#totalrp').val('Rp. '+response.totalrp);
-                    $('#bayarrp').val('Rp. '+response.bayarrp);
-                    $('#bayar').val(response.bayar);
-                    $('.tampil-bayar').text('Bayar Rp. '+ response.bayarrp);
-                    $('.tampil-terbilang').text('Rp. '+ response.terbilang);
+        $.get(`{{ url('/transaksi/loadform') }}/${diskon}/${$('.total').text()}/${diterima}`)
+            .done(response => {
+                $('#totalrp').val('Rp. '+ response.totalrp);
+                $('#bayarrp').val('Rp. '+ response.bayarrp);
+                $('#bayar').val(response.bayar);
+                $('.tampil-bayar').text('Bayar: Rp. '+ response.bayarrp);
+                $('.tampil-terbilang').text(response.terbilang);
 
-                    $('#kembali').val('Rp. '+ response.kembalirp);
-                    if ($('#diterima').val() != 0) {
-                         $('.tampil-bayar').text('Kembali Rp. '+ response.kembalirp);
-                         $('.tampil-terbilang').text('Rp. '+ response.kembali_terbilang);
-                    }
-                })
-                .fail(errors => {
-                    alert ('Tidak dapat menampilkan data');
-                    return;
-                })
-        }
+                $('#kembali').val('Rp.'+ response.kembalirp);
+                if ($('#diterima').val() != 0) {
+                    $('.tampil-bayar').text('Kembali: Rp. '+ response.kembalirp);
+                    $('.tampil-terbilang').text(response.kembali_terbilang);
+                }
+            })
+            .fail(errors => {
+                alert('Tidak dapat menampilkan data');
+                return;
+            })
+    }
 
     </script>
 @endpush
