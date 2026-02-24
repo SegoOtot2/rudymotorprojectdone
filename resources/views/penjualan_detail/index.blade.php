@@ -180,6 +180,7 @@
              ],
              dom: 'Brt',
              bSort: false,
+             paging: false,
         })
         .on('draw.dt', function () {
             loadForm($('#diskon').val());
@@ -241,6 +242,10 @@
         $('#kode_produk').focus();
         });
 
+        $('#modal-produk').on('shown.bs.modal', function() {
+            $(this).find('input[type="search"]').focus();
+        });
+
 
         $(document).on('change', '.quantity', function () {
             let id = $(this).data('id');
@@ -272,6 +277,26 @@
                     alert('Terjadi kesalahan, tidak dapat menyimpan data');
                 }
                 });
+        });
+
+        $(document).on('keydown', '.quantity', function(e) {
+            if (e.keyCode === 13 && !e.shiftKey) {
+                e.preventDefault();
+                $(this).closest('tr').find('.diskon').focus().select();
+            }
+        });
+
+        $(document).on('keydown', '.diskon', function(e) {
+            if ((e.keyCode === 9 || e.keyCode === 13) && !e.shiftKey) {
+                e.preventDefault();
+                var currentRow = $(this).closest('tr');
+                var nextRow = currentRow.next('tr');
+                if (nextRow.length) {
+                    nextRow.find('.quantity').focus().select();
+                } else {
+                    $('#kode_produk').focus();
+                }
+            }
         });
 
         $(document).on('change', '.diskon', function () {

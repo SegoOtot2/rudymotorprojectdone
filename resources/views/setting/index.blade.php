@@ -51,15 +51,16 @@
                             <div class="tampil-logo"></div>
                         </div>
                     </div>
-                    {{-- <div class="form-group row">
+                    <div class="form-group row">
                         <label for="tipe_nota" class="col-lg-2 col-lg-offset-1 control-label">Tipe Nota</label>
                         <div class="col-lg-2">
                             <select name="tipe_nota" class="form-control" id="tipe_nota" required>
-                                <option value="2">Nota Besar</option>
+                                <option value="1">Nota A4</option>
+                                <option value="2">Nota Dot Matrix</option>
                             </select>
                             <span class="help-block with-errors"></span>
                         </div>
-                    </div> --}}
+                    </div>
                 </div>
                 <div class="box-footer text-right">
                     <button class="btn btn-sm btn-flat btn-primary"><i class="fa fa-save"> Simpan Pengaturan</i></button>
@@ -107,10 +108,11 @@
                 $('[name=nama_perusahaan]').val(response.nama_perusahaan);
                 $('[name=telepon]').val(response.telepon);
                 $('[name=alamat]').val(response.alamat);
+
                 $('[name=tipe_nota]').val(response.tipe_nota);
+
                 $('title').text(response.nama_perusahaan + ' | Pengaturan');
                 $('.logo-lg').text(response.nama_perusahaan);
-
                 $('.tampil-logo').html(`<img src="{{ url('/') }}/${response.path_logo}" width="200">`);
                 $('[rel=icon]').attr('href', `{{ url('/') }}/${response.path_logo}`);
             })

@@ -154,7 +154,7 @@ class PenjualanController extends Controller
 
     public function notaBesar() {
         $setting = Setting::first();
-        $penjualan = penjualan::find(session('id_penjualan'));
+        $penjualan = Penjualan::find(session('id_penjualan'));
         if (! $penjualan) {
             abort(404);
         }
@@ -162,21 +162,38 @@ class PenjualanController extends Controller
             ->where('id_penjualan', session('id_penjualan'))
             ->get();
 
-        $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
-        $pdf->setPaper(0,0,609,404, 'potrait');
+        // LOGIKA SWITCH TIPE NOTA
+        if ($setting->tipe_nota == 1) {
+            // TIPE 1: NOTA BESAR (A4)
+            $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
+            $pdf->setPaper('a4', 'portrait');
+        } else {
+            // TIPE 2: NOTA KECIL (LX-310 / Struk)
+            $pdf = PDF::loadView('penjualan.nota_dot', compact('setting', 'penjualan', 'detail'));
+            $pdf->setPaper([0, 0, 609.4488, 396.85], 'portrait');
+        }
+        
         return $pdf->stream('Transaksi-'. date('Y-m-d-his') .'.pdf');
     }
 
+    // GANTI method cetakNota (untuk cetak ulang dari riwayat)
     public function cetakNota($id)
-{
-    $setting = Setting::first();
-    $penjualan = Penjualan::findOrFail($id);
-    $detail = PenjualanDetail::with('produk')
-        ->where('id_penjualan', $id)
-        ->get();
+    {
+        $setting = Setting::first();
+        $penjualan = Penjualan::findOrFail($id);
+        $detail = PenjualanDetail::with('produk')
+            ->where('id_penjualan', $id)
+            ->get();
 
-    $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
-    $pdf->setPaper('A4', 'portrait'); 
-    return $pdf->stream('Nota-'. date('Y-m-d-his') .'.pdf');
-}
+        // LOGIKA SWITCH TIPE NOTA
+        if ($setting->tipe_nota == 1) {
+            $pdf = PDF::loadView('penjualan.nota_besar', compact('setting', 'penjualan', 'detail'));
+            $pdf->setPaper('A4', 'portrait'); 
+        } else {
+            $pdf = PDF::loadView('penjualan.nota_dot', compact('setting', 'penjualan', 'detail'));
+            $pdf->setPaper([0, 0, 609.4488, 396.85], 'portrait');
+        }
+
+        return $pdf->stream('Nota-'. date('Y-m-d-his') .'.pdf');
+    }
 }

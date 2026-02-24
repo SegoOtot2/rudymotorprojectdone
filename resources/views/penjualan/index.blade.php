@@ -63,6 +63,7 @@
             processing: true,
             bsort: false,
             dom: 'Brt',
+            bPaginate: false,
             columns: [
                 {data: 'DT_RowIndex', searchable: false, sortable: false},
                 {data: 'kode_produk'},

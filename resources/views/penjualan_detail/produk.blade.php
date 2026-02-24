@@ -1,6 +1,6 @@
 <!-- Modal -->
 <div class="modal fade" id="modal-produk" tabindex="-1" role="dialog" aria-labelledby="modal-produk">
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-lg" role="document" style="width: 80%;">
         <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -15,7 +15,8 @@
             <th>Keterangan</th>
             <th>Kategori</th>
             <th>Merk</th>
-            <th>Harga</th>
+            <th>Harga Sales</th>
+            <th>Harga Toko</th>
             <th>Stok</th>
             <th><i class="fa fa-cog"></i></th>
           </thead>
@@ -29,6 +30,7 @@
                   <td>{{ $item->kategori->nama_kategori ?? '-'}}</td>
                   <td>{{ $item->merk }}</td>
                   <td class="harga-display">{{ format_uang($item->harga_jual) }}</td>
+                  <td>{{ format_uang($item->harga_jual_toko) }}</td>
                   <td>{{ $item->stok }}</td>
                   <td width="15%">
                   <a href="#" class="btn btn-primary btn-xs btn-flat"

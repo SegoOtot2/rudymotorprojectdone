@@ -57,8 +57,10 @@ class CustomerController extends Controller
      */
     public function store(Request $request)
     {
-        $customer = Customer::latest()->first() ?? new Customer();
-        $kode_customer = (int) $customer->kode_customer +1;
+        $lastCustomer = Customer::orderBy('id_customer', 'desc')->first();
+        
+        // Jika belum ada data sama sekali, set jadi 1, jika ada ambil kode terakhir + 1
+        $kode_customer = $lastCustomer ? (int) $lastCustomer->kode_customer + 1 : 1;
 
         $customer = new Customer();
         $customer->kode_customer = tambah_nol_didepan($kode_customer, 5);

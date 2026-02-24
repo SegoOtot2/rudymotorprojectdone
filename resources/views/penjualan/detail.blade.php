@@ -6,7 +6,7 @@
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title">Detail Penjualan</h4>
       </div>
-      <div class="modal-body">
+      <div class="modal-body" style="max-height: 700px; overflow-y: auto;">
         <table class="table table-striped table-bordered table-detail">
           <thead>
             <th width="5%">No</th>
